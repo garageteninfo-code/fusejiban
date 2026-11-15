@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>ふせじ番</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="langbar"><button id="lang" type="button" class="ghost" lang="en" aria-label="Switch to English">English</button></div>
+  <h1 data-i18n="h1">ふせじ番</h1>
+  <p class="subtitle" data-i18n="subtitle">AI に貼る前の伏せ字チェック</p>
+  <p class="lead" data-i18n="lead">お客さまのメールや問い合わせを AI（ChatGPT・Claude など）に貼る前に、個人情報や鍵が入っていないかを調べて、伏せ字にします。</p>
+  <p class="safe"><span aria-hidden="true">🔒</span> <span data-i18n="safe">この画面の中だけで動きます。貼った文字は、このパソコンの外に送られません（通信をすべて止める設定にしてあります）。</span></p>
+</header>
+
+<main>
+  <section class="card">
+    <label for="input" class="step" data-i18n="step1">1. 調べたい文を貼る</label>
+    <textarea id="input" rows="9" placeholder="ここにメールや問い合わせの文を貼ってください" data-i18n-ph="inputPh"></textarea>
+    <div class="row">
+      <button id="sample" type="button" class="ghost" data-i18n="sample">見本の文を入れる</button>
+      <button id="clear" type="button" class="ghost" data-i18n="clear">消す</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <p class="step" data-i18n="step2">2. 伏せる物を選ぶ</p>
+    <label class="opt"><input type="checkbox" id="personal" checked> <span data-i18n="optPersonal">電話・メール・住所・氏名・生年月日も伏せる</span></label>
+    <label class="opt"><input type="checkbox" id="aggressive"> <span data-i18n="optAggressive">マイナンバーを「マイナンバー」の言葉が無くても伏せる（12桁の数字をすべて疑う）</span></label>
+    <p class="note" data-i18n="noteAlways">鍵・パスワード・カード番号・マイナンバーと、検査の数字が合う海外の番号（SSN・NRIC など）は、いつも伏せます。</p>
+    <fieldset class="regions">
+      <legend data-i18n="regionsLegend">調べる国の型</legend>
+      <label><input type="checkbox" class="region" value="JP" checked> <span data-i18n="regJP">日本</span></label>
+      <label><input type="checkbox" class="region" value="US" checked> <span data-i18n="regUS">米国</span></label>
+      <label><input type="checkbox" class="region" value="SG" checked> <span data-i18n="regSG">シンガポール</span></label>
+      <label><input type="checkbox" class="region" value="CA" checked> <span data-i18n="regCA">カナダ</span></label>
+      <label><input type="checkbox" class="region" value="AU" checked> <span data-i18n="regAU">オーストラリア</span></label>
+      <label><input type="checkbox" class="region" value="INTL" checked> <span data-i18n="regINTL">IBAN・英国 NI（おまけ）</span></label>
+    </fieldset>
+  </section>
+
+  <section class="card">
+    <label for="words" class="step" data-i18n="wordsTitle">自分で伏せる言葉（名前などの見落としを防ぐ）</label>
+    <p class="note top0" data-i18n="wordsNote">お客さまの名前・会社名・物件名など、いつも伏せたい言葉を1行に1つ書きます。名前は自動では見落としやすいので、ここに足すのが確実です。</p>
+    <textarea id="words" rows="3" placeholder="例：架空 花子&#10;架空不動産" data-i18n-ph="wordsPh"></textarea>
+    <div class="row">
+      <button id="addSel" type="button" class="ghost" data-i18n="addSel">1. の欄で選んだ言葉を足す</button>
+      <span id="addMsg" class="copied" aria-live="polite"></span>
+    </div>
+    <label class="opt"><input type="checkbox" id="remember"> <span data-i18n="remember">このブラウザに覚えておく（このパソコンの中にだけ残ります）</span></label>
+  </section>
+
+  <section class="card">
+    <p class="step" data-i18n="step3">3. 見つかった物</p>
+    <div id="summary" class="summary" aria-live="polite">まだ何も貼られていません。</div>
+    <div id="marked" class="marked" aria-label="見つかった所に色を付けた文" data-i18n-aria="markedAria"></div>
+  </section>
+
+  <section class="card">
+    <label for="output" class="step" data-i18n="step4">4. AI に貼ってよい文</label>
+    <textarea id="output" rows="9" readonly></textarea>
+    <div class="row">
+      <button id="copy" type="button" class="primary" data-i18n="copy">伏せ字にした文を写す</button>
+      <span id="copied" class="copied" aria-live="polite"></span>
+    </div>
+    <p class="note" data-i18n="noteNumbering">伏せた所には［氏名1］［電話1］のような番号が付きます。同じ言葉には同じ番号です。</p>
+  </section>
+
+  <section class="card">
+    <label for="reply" class="step" data-i18n="step5">5. AI の返事を元に戻す（使うときだけ）</label>
+    <p class="note top0" data-i18n="restoreNote">AI の返事を貼ると、［氏名1］などを元の言葉に戻します。戻すための表は、この画面を閉じると消えます。</p>
+    <textarea id="reply" rows="5" placeholder="AI の返事をここに貼る" data-i18n-ph="replyPh"></textarea>
+    <textarea id="restored" rows="5" readonly aria-label="元に戻した返事" data-i18n-aria="restoredAria"></textarea>
+    <div class="row">
+      <button id="copyRestored" type="button" class="primary" data-i18n="copyRestored">元に戻した返事を写す</button>
+      <span id="copiedRestored" class="copied" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <section class="card limits">
+    <h2 data-i18n="limitsTitle">できないこと（正直に）</h2>
+    <ul>
+      <li><span data-i18n="lim1a">見落としがあります。作った人が見ていない試験では、番号と鍵（電話・メール・カード・マイナンバー・鍵）は約8割、住所は約7割を見つけましたが、</span><strong data-i18n="lim1b">氏名は2割も見つけられませんでした</strong><span data-i18n="lim1c">。</span></li>
+      <li><span data-i18n="lim2a">氏名は 11/14 に、よくある名字・名の辞書と「さん・様・です・より・妻の〜」などの手がかりで直しました。ただし直した後の数字は、作った人が自分で作った試験でしか測っていないので、実際はもっと見落とします。</span><strong data-i18n="lim2b">名前は「自分で伏せる言葉」に足すのが確実です。</strong></li>
+      <li data-i18n="lim3">海外（米国・シンガポール・カナダ・オーストラリア）の番号（SSN・ITIN・NRIC/FIN・SIN・TFN・Medicare）・電話・住所・英語の名前・生年月日も 11/14 に足しました。これも作った人が自分で作った試験でしか測っていません。運転免許・パスポート・口座番号（IBAN 以外）・EU と英国の多くの番号は、まだ見つけません。</li>
+      <li data-i18n="lim4">声で読んだ番号（「ゼロキュウゼロ…」）は、ほぼ見つけられません。手がかりの無い名前（文の途中に名字だけ、珍しい名字など）も見落とします。</li>
+      <li data-i18n="lim5">伏せた後の文も、必ずご自分の目で確かめてから貼ってください。このチェックは「すべての漏れを防ぐ」ものではありません。</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="foot">
+  <p data-i18n="foot">無料・試作版（2026-11-14）・HARVEST。日本語の試験の数字は、作った人が見ていない架空の試験データ130件で測った物です。海外の数字は、作った人が自分で作った試験だけで測った物です。</p>
+  <p><a id="termsLink" href="terms.html" data-i18n="termsLink">利用条件・個人情報の扱い</a></p>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>
